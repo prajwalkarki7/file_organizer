@@ -29,14 +29,48 @@ def register_organizer_tool(agent: Agent)->None:
             return str(e)
     
     @agent.tool_plain
-    def move_file(file_name: str, destination_folder: str) -> str:
-        """Move a file to the specified destination folder."""
-        import os
-        import shutil
-        try:
-            if not os.path.exists(destination_folder):
-                os.makedirs(destination_folder)
-            shutil.move(file_name, destination_folder)
-            return f"File '{file_name}' moved to '{destination_folder}' successfully."
-        except Exception as e:
-            return str(e)
+    def organize_directory(directory_path: str) -> str:
+        """
+        Scans a directory and automatically moves all files into folders 
+        based on their types (PDFs, Docs, Images, etc.).
+        """
+        path = directory_path.strip().replace('"', '').replace('\\', '/')
+        
+        if not os.path.exists(path):
+            return f"Error: The path '{path}' does not exist."
+
+        moved_count = 0
+        
+        for filename in os.listdir(path):
+            old_path = os.path.join(path, filename)
+            
+            if os.path.isdir(old_path):
+                continue
+
+            ext = os.path.splitext(filename)
+            
+            if ext == '.pdf':
+                target_folder = "PDFs"
+            elif ext in ['.doc', '.docx', '.txt']:
+                target_folder = "Docs"
+            elif ext in ['.jpg', '.png', '.jpeg', '.gif']:
+                target_folder = "Images"
+            elif ext in ['.py', '.env', '.gitignore']:
+                target_folder = "Development"
+            else:
+                target_folder = "Other_Files"
+            
+            full_target_dir = os.path.join(path, target_folder)
+            
+            if not os.path.exists(full_target_dir):
+                os.makedirs(full_target_dir)
+            
+            new_path = os.path.join(full_target_dir, filename)
+            
+            try:
+                os.rename(old_path, new_path)
+                moved_count += 1
+            except Exception as e:
+                continue
+
+        return f"Success: Organized {moved_count} files in '{path}'."
