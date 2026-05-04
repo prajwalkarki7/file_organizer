@@ -1,0 +1,9 @@
+open your terminal and 
+ -run uvicorn main:app --reload
+ -copy the url and run on any browser
+
+packages you need
+ -groq
+ -dotenv
+ -pydantic.ai
+ -unicorn 
